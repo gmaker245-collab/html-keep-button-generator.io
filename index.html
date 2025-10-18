@@ -47,7 +47,7 @@
       outline: none;
     }
 
-    button {
+    #generateBtn {
       padding: 12px 25px;
       font-size: 16px;
       border: none;
@@ -55,23 +55,15 @@
       cursor: pointer;
       transition: 0.3s;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    button:disabled {
-      background: #aaa;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    #generateBtn {
       background: linear-gradient(45deg, #4CAF50, #66BB6A);
       color: #fff;
       font-weight: 500;
     }
 
-    #generateBtn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    #generateBtn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+      box-shadow: none;
     }
 
     #preview {
@@ -81,34 +73,6 @@
       background: #fff;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
-
-    .btn-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 15px;
-    }
-
-    .gen-btn {
-      padding: 12px 16px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      flex: 1;
-      min-width: 150px;
-      transition: 0.2s;
-    }
-
-    .gen-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-    }
-
-    .btn-keep { background:#ff3366; color:#fff; }
-    .btn-review { background:#2196F3; color:#fff; }
-    .btn-vanilla { background:#9C27B0; color:#fff; }
-    .btn-gold { background:linear-gradient(45deg,#FFD700,#FFA500); color:#000; font-weight:bold; }
 
     #copyBtn {
       margin-top: 10px;
@@ -185,15 +149,21 @@
       const vanillaUrl = shop.selectedOptions[0].dataset.vanilla;
       const goldUrl = shop.selectedOptions[0].dataset.gold;
 
+      const buttonStyleBase = "padding:12px 16px;border:none;border-radius:8px;font-size:14px;cursor:pointer;margin:4px;flex:1;min-width:150px;transition:0.2s;";
+      const keepStyle = buttonStyleBase + "background:#ff3366;color:#fff;";
+      const reviewStyle = buttonStyleBase + "background:#2196F3;color:#fff;";
+      const vanillaStyle = buttonStyleBase + "background:#9C27B0;color:#fff;";
+      const goldStyle = buttonStyleBase + "background:linear-gradient(45deg,#FFD700,#FFA500);color:#000;font-weight:bold;";
+
       const htmlCode = `
 <p>
   <img src="${imageUrl}" width="100%" style="cursor:pointer;" onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{method:'POST',credentials:'include',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},body:new URLSearchParams({shop_id:'${shopId}'})})">
 </p>
-<div class="btn-container">
-  <button class="gen-btn btn-keep" onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{method:'POST',credentials:'include',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},body:new URLSearchParams({shop_id:'${shopId}'})})">このお店をキープする</button>
-  <button class="gen-btn btn-review" onclick="location.href='${reviewUrl}'">口コミを見る</button>
-  <button class="gen-btn btn-vanilla" onclick="location.href='${vanillaUrl}'">バニラdeデビューを見る</button>
-  <button class="gen-btn btn-gold" onclick="location.href='${goldUrl}'">入店祝金を受け取る</button>
+<div style="display:flex;flex-wrap:wrap;">
+  <button style="${keepStyle}" onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{method:'POST',credentials:'include',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},body:new URLSearchParams({shop_id:'${shopId}'})})">このお店をキープする</button>
+  <button style="${reviewStyle}" onclick="location.href='${reviewUrl}'">口コミを見る</button>
+  <button style="${vanillaStyle}" onclick="location.href='${vanillaUrl}'">バニラdeデビューを見る</button>
+  <button style="${goldStyle}" onclick="location.href='${goldUrl}'">入店祝金を受け取る</button>
 </div>
       `.trim();
 
