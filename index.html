@@ -2,160 +2,140 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>最大99枚対応｜キープボタンHTMLジェネレーター</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>画像アップロードとキープ機能</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
     body {
-      font-family: 'Roboto', sans-serif;
-      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-      padding: 40px;
-      color: #333;
+      font-family: "Segoe UI", sans-serif;
+      background: #f7f8fa;
+      padding: 30px;
+      text-align: center;
     }
     h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #222;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+      font-size: 1.5rem;
+      margin-bottom: 20px;
     }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; font-weight: 500; margin-bottom: 8px; }
-    select, input[type="text"], textarea {
-      padding: 12px 15px; width: 100%; max-width: 500px;
-      font-size: 16px; border: 1px solid #ccc; border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.2s;
+    input[type="file"] {
+      margin-bottom: 20px;
     }
-    select:focus, input[type="text"]:focus, textarea:focus {
-      border-color: #4CAF50; box-shadow: 0 0 8px rgba(76,175,80,0.3); outline: none;
-    }
-    button {
-      padding: 12px 25px; font-size: 16px; border: none; border-radius: 8px;
-      cursor: pointer; transition: 0.3s; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    button:disabled { background: #aaa; cursor: not-allowed; box-shadow: none; }
-    #generateBtn { background: linear-gradient(45deg, #4CAF50, #66BB6A); color: #fff; font-weight: 500; }
-    #generateBtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
-    #addImageBtn { background:#2196F3; color:#fff; margin-top:10px; }
-    #addImageBtn:hover { background:#1976D2; }
     #preview {
-      margin-top: 30px; padding: 20px; border-radius: 12px; background: #fff;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 20px;
     }
-    .btn-container {
-      display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px;
+    .image-container {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      background: #fff;
     }
-    .gen-btn {
-      padding: 12px 16px; border: none; border-radius: 8px; font-size: 14px;
-      cursor: pointer; flex: 1; min-width: 150px; transition: 0.2s;
+    .image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
-    .gen-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
-    .btn-keep { background:#ff3366; color:#fff; }
-    .btn-review { background:#2196F3; color:#fff; }
-    .btn-vanilla { background:#9C27B0; color:#fff; }
-    .btn-gold { background:linear-gradient(45deg,#FFD700,#FFA500); color:#000; font-weight:bold; }
-    #copyBtn { margin-top: 10px; background: #FF9800; color: #fff; font-weight: 500; }
-    #copyBtn:hover { background: #FB8C00; }
+    .keep-button {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    #addAllBtn {
+      display: none;
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+    #addAllBtn:hover {
+      background: #0056b3;
+    }
   </style>
 </head>
 <body>
-  <h1>最大99枚対応｜キープボタンHTMLジェネレーター</h1>
+  <h1>画像アップロード & キープリスト</h1>
 
-  <div class="form-group">
-    <label>店舗を選択</label>
-    <select id="shopSelect">
-      <option value="">選択してください</option>
-      <option value="chankosz"
-              data-review="https://tokai.qzin.jp/chankosz/reviews"
-              data-vanilla="https://tokai.qzin.jp/chankosz/#vanilladebut"
-              data-gold="https://tokai.qzin.jp/chankosz/#oubomail">ちゃんこ</option>
-      <option value="kktrszok"
-              data-review="https://tokai.qzin.jp/kktrszok/reviews/"
-              data-vanilla="https://tokai.qzin.jp/kktrszok/#vanilladebut"
-              data-gold="https://tokai.qzin.jp/kktrszok/#oubomail">カクテル</option>
-    </select>
-  </div>
-
-  <div class="form-group" id="imageInputs">
-    <label>画像URL（1枚目）</label>
-    <input type="text" class="imageUrl" placeholder="https://example.com/image1.jpg" />
-  </div>
-
-  <button id="addImageBtn" onclick="addImageField()">＋ 画像を追加</button>
-  <button id="generateBtn" onclick="generateCode()" disabled>HTMLを生成</button>
-
+  <input type="file" id="imageUpload" accept="image/*" multiple />
   <div id="preview"></div>
 
-  <div class="form-group">
-    <label>生成されたHTMLソース</label>
-    <textarea id="output" rows="10" style="width:100%;max-width:600px;"></textarea>
-    <button id="copyBtn" onclick="copyCode()">コピーする</button>
-  </div>
+  <button id="addAllBtn">キープリストに追加</button>
 
   <script>
-    const shopSelect = document.getElementById('shopSelect');
-    const generateBtn = document.getElementById('generateBtn');
-    const output = document.getElementById('output');
-    const imageInputs = document.getElementById('imageInputs');
-    let imageCount = 1;
+    const uploadInput = document.getElementById("imageUpload");
+    const preview = document.getElementById("preview");
+    const addAllBtn = document.getElementById("addAllBtn");
+    let uploadedImages = [];
+    let keepList = [];
 
-    function validateInputs() {
-      const isShopSelected = shopSelect.value !== '';
-      const hasAnyImage = [...document.querySelectorAll('.imageUrl')].some(input => input.value.trim() !== '');
-      generateBtn.disabled = !(isShopSelected && hasAnyImage);
-    }
-
-    shopSelect.addEventListener('change', validateInputs);
-    imageInputs.addEventListener('input', validateInputs);
-
-    function addImageField() {
-      if (imageCount >= 99) {
-        alert('画像は最大99枚まで追加できます。');
+    // ファイル選択時の処理
+    uploadInput.addEventListener("change", (e) => {
+      const files = Array.from(e.target.files);
+      if (files.length > 99) {
+        alert("アップロードできるのは最大99枚までです。");
         return;
       }
-      imageCount++;
-      const div = document.createElement('div');
-      div.innerHTML = `
-        <label>画像URL（${imageCount}枚目）</label>
-        <input type="text" class="imageUrl" placeholder="https://example.com/image${imageCount}.jpg" />
-      `;
-      imageInputs.appendChild(div);
-      validateInputs();
-    }
 
-    function generateCode() {
-      const shop = shopSelect;
-      const images = [...document.querySelectorAll('.imageUrl')]
-        .map(i => i.value.trim())
-        .filter(Boolean);
+      uploadedImages = files;
+      preview.innerHTML = ""; // 初期化
 
-      if (!shop.value || images.length === 0) return;
+      files.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const container = document.createElement("div");
+          container.classList.add("image-container");
 
-      const shopId = shop.value;
-      const reviewUrl = shop.selectedOptions[0].dataset.review;
-      const vanillaUrl = shop.selectedOptions[0].dataset.vanilla;
-      const goldUrl = shop.selectedOptions[0].dataset.gold;
+          const img = document.createElement("img");
+          img.src = reader.result;
+          img.alt = `image-${index}`;
 
-      let htmlCode = images.map(imageUrl => `
-<p>
-  <img src="${imageUrl}" width="100%" style="cursor:pointer;" onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{method:'POST',credentials:'include',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},body:new URLSearchParams({shop_id:'${shopId}'})})">
-</p>
-<div class="btn-container">
-  <button style="background:#ff3366;color:#fff;padding:12px 16px;border:none;border-radius:8px;font-size:14px;cursor:pointer;" onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{method:'POST',credentials:'include',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},body:new URLSearchParams({shop_id:'${shopId}'})})">このお店をキープする</button>
-  <button style="background:#2196F3;color:#fff;padding:12px 16px;border:none;border-radius:8px;font-size:14px;cursor:pointer;" onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{method:'POST',credentials:'include',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},body:new URLSearchParams({shop_id:'${shopId}'})}); location.href='${reviewUrl}'">口コミを見る</button>
-  <button style="background:#9C27B0;color:#fff;padding:12px 16px;border:none;border-radius:8px;font-size:14px;cursor:pointer;" onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{method:'POST',credentials:'include',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},body:new URLSearchParams({shop_id:'${shopId}'})}); location.href='${vanillaUrl}'">バニラdeデビューを見る</button>
-  <button style="background:linear-gradient(45deg,#FFD700,#FFA500);color:#000;font-weight:bold;padding:12px 16px;border:none;border-radius:8px;font-size:14px;cursor:pointer;" onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{method:'POST',credentials:'include',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},body:new URLSearchParams({shop_id:'${shopId}'})}); location.href='${goldUrl}'">入店祝金を受け取る</button>
-</div>
-      `).join('\n');
+          // 各画像のキープボタン
+          const keepBtn = document.createElement("button");
+          keepBtn.textContent = "＋キープ";
+          keepBtn.className = "keep-button";
+          keepBtn.addEventListener("click", () => {
+            if (!keepList.includes(reader.result)) {
+              keepList.push(reader.result);
+              keepBtn.textContent = "✓ キープ済";
+              keepBtn.style.background = "green";
+            }
+          });
 
-      output.value = htmlCode.trim();
-      document.getElementById('preview').innerHTML = htmlCode;
-    }
+          container.appendChild(img);
+          container.appendChild(keepBtn);
+          preview.appendChild(container);
 
-    function copyCode() {
-      output.select();
-      navigator.clipboard.writeText(output.value)
-        .then(() => alert('コピーしました！'))
-        .catch(() => alert('コピーに失敗しました'));
-    }
+          // 最後の画像のあとに全体ボタン表示
+          if (index === files.length - 1) {
+            addAllBtn.style.display = "inline-block";
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    // 「全画像キープ追加」ボタン
+    addAllBtn.addEventListener("click", () => {
+      const allImageUrls = uploadedImages.map((file) => URL.createObjectURL(file));
+      allImageUrls.forEach((url) => {
+        if (!keepList.includes(url)) keepList.push(url);
+      });
+      alert(`全${uploadedImages.length}枚をキープリストに追加しました！`);
+    });
   </script>
 </body>
 </html>
