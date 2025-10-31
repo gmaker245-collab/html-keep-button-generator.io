@@ -155,15 +155,28 @@
       const vanillaStyle = buttonStyleBase + "background:#9C27B0;color:#fff;";
       const goldStyle = buttonStyleBase + "background:linear-gradient(45deg,#FFD700,#FFA500);color:#000;font-weight:bold;";
 
+      const addKeepAndGo = (url = null) => `
+fetch('https://tokai.qzin.jp/user/ajax/keeplist_add', {
+  method: 'POST',
+  credentials: 'include',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+    'X-Requested-With': 'XMLHttpRequest'
+  },
+  body: new URLSearchParams({shop_id: '${shopId}'})
+})
+${url ? `.then(()=>location.href='${url}')` : ''}
+`;
+
       const htmlCode = `
 <p>
-  <img src="${imageUrl}" width="100%" style="cursor:pointer;" onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{method:'POST',credentials:'include',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},body:new URLSearchParams({shop_id:'${shopId}'})})">
+  <img src="${imageUrl}" width="100%" style="cursor:pointer;" onclick="${addKeepAndGo()}">
 </p>
 <div style="display:flex;flex-wrap:wrap;">
-  <button style="${keepStyle}" onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{method:'POST',credentials:'include',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},body:new URLSearchParams({shop_id:'${shopId}'})})">このお店をキープする</button>
-  <button style="${reviewStyle}" onclick="location.href='${reviewUrl}'">口コミを見る</button>
-  <button style="${vanillaStyle}" onclick="location.href='${vanillaUrl}'">バニラdeデビューを見る</button>
-  <button style="${goldStyle}" onclick="location.href='${goldUrl}'">入店祝金を受け取る</button>
+  <button style="${keepStyle}" onclick="${addKeepAndGo()}">このお店をキープする</button>
+  <button style="${reviewStyle}" onclick="${addKeepAndGo(reviewUrl)}">口コミを見る</button>
+  <button style="${vanillaStyle}" onclick="${addKeepAndGo(vanillaUrl)}">バニラdeデビューを見る</button>
+  <button style="${goldStyle}" onclick="${addKeepAndGo(goldUrl)}">入店祝金を受け取る</button>
 </div>
       `.trim();
 
