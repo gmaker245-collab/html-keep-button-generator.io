@@ -149,36 +149,59 @@
       const vanillaUrl = shop.selectedOptions[0].dataset.vanilla;
       const goldUrl = shop.selectedOptions[0].dataset.gold;
 
+      // 共通インラインスタイル
       const buttonStyleBase = "padding:12px 16px;border:none;border-radius:8px;font-size:14px;cursor:pointer;margin:4px;flex:1;min-width:150px;transition:0.2s;";
       const keepStyle = buttonStyleBase + "background:#ff3366;color:#fff;";
       const reviewStyle = buttonStyleBase + "background:#2196F3;color:#fff;";
       const vanillaStyle = buttonStyleBase + "background:#9C27B0;color:#fff;";
       const goldStyle = buttonStyleBase + "background:linear-gradient(45deg,#FFD700,#FFA500);color:#000;font-weight:bold;";
 
-      const addKeepAndGo = (url = null) => `
-fetch('https://tokai.qzin.jp/user/ajax/keeplist_add', {
-  method: 'POST',
-  credentials: 'include',
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-    'X-Requested-With': 'XMLHttpRequest'
-  },
-  body: new URLSearchParams({shop_id: '${shopId}'})
-})
-${url ? `.then(()=>location.href='${url}')` : ''}
-`;
+      // fetch 呼び出し式（文字列）
+      const fetchExpr = "fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',"
+                      + "{method:'POST',credentials:'include',"
+                      + "headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},"
+                      + "body:new URLSearchParams({shop_id:'" + shopId + "'})})";
 
-      const htmlCode = `
-<p>
-  <img src="${imageUrl}" width="100%" style="cursor:pointer;" onclick="${addKeepAndGo()}">
-</p>
-<div style="display:flex;flex-wrap:wrap;">
-  <button style="${keepStyle}" onclick="${addKeepAndGo()}">このお店をキープする</button>
-  <button style="${reviewStyle}" onclick="${addKeepAndGo(reviewUrl)}">口コミを見る</button>
-  <button style="${vanillaStyle}" onclick="${addKeepAndGo(vanillaUrl)}">バニラdeデビューを見る</button>
-  <button style="${goldStyle}" onclick="${addKeepAndGo(goldUrl)}">入店祝金を受け取る</button>
-</div>
-      `.trim();
+      // IIFE で包んだonclick ハンドラを作るヘルパー
+      // redirectUrl が null のときは遷移せず fetch のみ行う
+      function makeOnclick(redirectUrl) {
+        if (redirectUrl) {
+          // 成功時・失敗時ともに遷移するようにしておく（ネットワークエラーでも遷移させたい場合）
+          // 注意: onclick 属性にはダブルクォートで囲むので、内部の文字列はシングルクォートを使う
+          return "(function(){"
+               + fetchExpr
+               + ".then(function(){ location.href='" + redirectUrl + "'; })"
+               + ".catch(function(e){ console.error(e); location.href='" + redirectUrl + "'; });"
+               + "})()";
+        } else {
+          // 遷移なし（キープのみ）
+          return "(function(){"
+               + fetchExpr
+               + ".then(function(){ /* kept */ })"
+               + ".catch(function(e){ console.error(e); });"
+               + "})()";
+        }
+      }
+
+      // 画像クリック時はキープのみ（遷移無し）
+      const imgOnclick = makeOnclick(null);
+      // 各ボタンの onclick を作成（口コミ等はキープしてから遷移）
+      const keepBtnOnclick = makeOnclick(null);
+      const reviewBtnOnclick = makeOnclick(reviewUrl);
+      const vanillaBtnOnclick = makeOnclick(vanillaUrl);
+      const goldBtnOnclick = makeOnclick(goldUrl);
+
+      const htmlCode = [
+        `<p>`,
+        `  <img src="${imageUrl}" width="100%" style="cursor:pointer;" onclick="${imgOnclick}">`,
+        `</p>`,
+        `<div style="display:flex;flex-wrap:wrap;">`,
+        `  <button style="${keepStyle}" onclick="${keepBtnOnclick}">このお店をキープする</button>`,
+        `  <button style="${reviewStyle}" onclick="${reviewBtnOnclick}">口コミを見る</button>`,
+        `  <button style="${vanillaStyle}" onclick="${vanillaBtnOnclick}">バニラdeデビューを見る</button>`,
+        `  <button style="${goldStyle}" onclick="${goldBtnOnclick}">入店祝金を受け取る</button>`,
+        `</div>`
+      ].join("\n");
 
       output.value = htmlCode;
       preview.innerHTML = htmlCode;
