@@ -39,14 +39,6 @@
       padding: 8px 12px; cursor: pointer; transition: 0.2s;
     }
     .removeBtn:hover { background: #c62828; }
-    .btn-container {
-      display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px;
-    }
-    .gen-btn {
-      padding: 12px 16px; border: none; border-radius: 8px; font-size: 14px;
-      cursor: pointer; flex: 1; min-width: 150px; transition: 0.2s;
-    }
-    .gen-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
     #copyBtn { margin-top: 10px; background: #FF9800; color: #fff; font-weight: 500; }
     #copyBtn:hover { background: #FB8C00; }
   </style>
@@ -96,7 +88,6 @@
     const imageInputs = document.getElementById('imageInputs');
     let imageCount = 1;
 
-    // 入力チェック
     function validateInputs() {
       const isShopSelected = shopSelect.value !== '';
       const hasAnyImage = [...document.querySelectorAll('.imageUrl')].some(input => input.value.trim() !== '');
@@ -106,7 +97,6 @@
     shopSelect.addEventListener('change', validateInputs);
     imageInputs.addEventListener('input', validateInputs);
 
-    // 画像追加
     function addImageField() {
       if (imageCount >= 99) {
         alert('画像は最大99枚までです。');
@@ -124,19 +114,13 @@
       validateInputs();
     }
 
-    // 画像削除
     function removeImageField(btn) {
       btn.parentElement.remove();
       validateInputs();
     }
 
-    // 並び替え有効化
-    Sortable.create(imageInputs, {
-      animation: 150,
-      handle: '.image-input',
-    });
+    Sortable.create(imageInputs, { animation: 150, handle: '.image-input' });
 
-    // HTML生成
     function generateCode() {
       const shop = shopSelect;
       const images = [...document.querySelectorAll('.imageUrl')]
@@ -150,54 +134,87 @@
       const vanillaUrl = shop.selectedOptions[0].dataset.vanilla;
       const goldUrl = shop.selectedOptions[0].dataset.gold;
 
-      // 各画像クリックでキープ追加
       let htmlCode = images.map(imageUrl => `
 <p>
   <img src="${imageUrl}" width="100%" style="cursor:pointer;"
-       onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{
-         method:'POST',
-         credentials:'include',
-         headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},
-         body:new URLSearchParams({shop_id:'${shopId}'})
-       })">
+    onclick="(function(){
+      fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{
+        method:'POST',credentials:'include',
+        headers:{
+          'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
+          'X-Requested-With':'XMLHttpRequest'
+        },
+        body:new URLSearchParams({shop_id:'${shopId}'})
+      }).then(function(){ /* kept */ }).catch(function(e){ console.error(e); });
+    })()">
 </p>`).join('\n');
 
-      // ボタン群は最後にのみ
       htmlCode += `
-<div class="btn-container">
-  <button style="background:#ff3366;color:#fff;" onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{
-    method:'POST',credentials:'include',
-    headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},
-    body:new URLSearchParams({shop_id:'${shopId}'})
-  })">このお店をキープする</button>
-
-  <button style="background:#2196F3;color:#fff;"
-    onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{
+<div style="display:flex;flex-wrap:wrap;">
+  <button onclick="(function(){
+    fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{
       method:'POST',credentials:'include',
-      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},
+      headers:{
+        'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
+        'X-Requested-With':'XMLHttpRequest'
+      },
       body:new URLSearchParams({shop_id:'${shopId}'})
-    }); location.href='${reviewUrl}'">口コミを見る</button>
+    }).then(function(){ /* kept */ }).catch(function(e){ console.error(e); });
+  })()" 
+  style="padding:12px 16px;border:none;border-radius:8px;font-size:14px;cursor:pointer;margin:4px;flex:1;min-width:150px;transition:0.2s;background:#ff3366;color:#fff;">
+    このお店をキープする
+  </button>
 
-  <button style="background:#9C27B0;color:#fff;"
-    onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{
+  <button onclick="(function(){
+    fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{
       method:'POST',credentials:'include',
-      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},
+      headers:{
+        'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
+        'X-Requested-With':'XMLHttpRequest'
+      },
       body:new URLSearchParams({shop_id:'${shopId}'})
-    }); location.href='${vanillaUrl}'">バニラdeデビューを見る</button>
+    }).then(function(){ location.href='${reviewUrl}'; })
+      .catch(function(e){ console.error(e); location.href='${reviewUrl}'; });
+  })()" 
+  style="padding:12px 16px;border:none;border-radius:8px;font-size:14px;cursor:pointer;margin:4px;flex:1;min-width:150px;transition:0.2s;background:#2196F3;color:#fff;">
+    口コミを見る
+  </button>
 
-  <button style="background:linear-gradient(45deg,#FFD700,#FFA500);color:#000;font-weight:bold;"
-    onclick="fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{
+  <button onclick="(function(){
+    fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{
       method:'POST',credentials:'include',
-      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},
+      headers:{
+        'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
+        'X-Requested-With':'XMLHttpRequest'
+      },
       body:new URLSearchParams({shop_id:'${shopId}'})
-    }); location.href='${goldUrl}'">入店祝金を受け取る</button>
+    }).then(function(){ location.href='${vanillaUrl}'; })
+      .catch(function(e){ console.error(e); location.href='${vanillaUrl}'; });
+  })()" 
+  style="padding:12px 16px;border:none;border-radius:8px;font-size:14px;cursor:pointer;margin:4px;flex:1;min-width:150px;transition:0.2s;background:#9C27B0;color:#fff;">
+    バニラdeデビューを見る
+  </button>
+
+  <button onclick="(function(){
+    fetch('https://tokai.qzin.jp/user/ajax/keeplist_add',{
+      method:'POST',credentials:'include',
+      headers:{
+        'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
+        'X-Requested-With':'XMLHttpRequest'
+      },
+      body:new URLSearchParams({shop_id:'${shopId}'})
+    }).then(function(){ location.href='${goldUrl}'; })
+      .catch(function(e){ console.error(e); location.href='${goldUrl}'; });
+  })()" 
+  style="padding:12px 16px;border:none;border-radius:8px;font-size:14px;cursor:pointer;margin:4px;flex:1;min-width:150px;transition:0.2s;background:linear-gradient(45deg,#FFD700,#FFA500);color:#000;font-weight:bold;">
+    入店祝金を受け取る
+  </button>
 </div>`;
 
       output.value = htmlCode.trim();
       document.getElementById('preview').innerHTML = htmlCode;
     }
 
-    // コピー
     function copyCode() {
       output.select();
       navigator.clipboard.writeText(output.value)
@@ -207,4 +224,3 @@
   </script>
 </body>
 </html>
-
